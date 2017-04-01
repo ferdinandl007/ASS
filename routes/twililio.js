@@ -7,9 +7,9 @@ var express = require('express');
 var router = express.Router();
 
 var config = {
-     accountSid :  'AC9f90534f5f0c07945593220fc627776a',
-     authToken :  'c750a14d313e51a80d31d4944d516da7',
-     sendingNumber : '+441721272048'
+     accountSid :  'ACdec8d74dd965de5b5a55d493e7e1f02e',
+     authToken :  'cfb4b446531be14ce03d7d50424b8df5',
+     sendingNumber : '+441722580070'
 };
 
 var client = require('twilio')(config.accountSid, config.authToken);
