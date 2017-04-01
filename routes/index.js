@@ -15,8 +15,8 @@ var visual_recognition = watson.visual_recognition({
 });
 
 var params = {
-    images_file: fs.createReadStream( __dirname +"/one.jpg"),
-    classifier_ids: ['goldenretrievers20170401_1724637974']
+    images_file: fs.createReadStream( __dirname +"/scene00001.jpg"),
+    classifier_ids: ['person1_2003340273']
 };
 
 
