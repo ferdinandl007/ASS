@@ -116,35 +116,47 @@ function sendToWatson(callback){
 
 
 
-router.post('/postimage1', multipartMiddleware, function (req, res) {
-
-    //params.images_file = req.files.file;
-
-    //params.image = req.files;
-
-    console.log(req.files.file);
-
-    var multipartStream = multipart(req.headers, handler);
-
-    pump(req, multipartStream, function (err) {
-        if (err) res.end('server error')
-        res.end()
-    })
-
-    function handler (fieldname, file, filename) {
-        console.log('reading file ' + filename + ' from field ' + fieldname)
-        var fileStream = fs.createWriteStream(path.join('/tmp', filename))
-        pump(file, fileStream)
+router.post('/postimage1', function (req, res) {
 
 
-    }
+    console.log(req.files);
+        try {
+            if (req.busboy) {
+                req.pipe(req.busboy);
+                req.busboy.on('field', function (fieldname, val) {});
+                req.busboy.on('file', function (fieldname, file, filename) {
+                    file.on('data', function (data) {
+                        var uploadParams = {Bucket: S3_BUCKET, Key: '', Body: '', ACL: 'public-read'};
+                        uploadParams.Body = new Buffer(data);
+                        uploadParams.Key = new Date().toString();
+                        s3.upload(uploadParams, function (err, data) {
+                            if (err) {
+                                console.log('ERROR MSG: ', err);
+                                res.send(400);
+                            } else {
+                                console.log(data.Location);
+                                console.log('Successfully uploaded data');
+                                res.end(JSON.stringify({url: data.Location}));
+                            }
+                        });
+                    });
+                });
+            } else {
+                return res.status(400).send('Bad Request: Wrong Format');
+            }
+        } catch (err) {
+            return res.status(400).send();
+        }
 
 
 
-  /*  sendToWatson(function (flag) {
-        console.log('some');
 
-    })*/
+
+
+    /*  sendToWatson(function (flag) {
+          console.log('some');
+
+      })*/
     res.send('thanjs');
 
 
