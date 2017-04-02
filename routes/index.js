@@ -172,6 +172,7 @@ router.post('/postimage1',  function (req, res) {
                       params.url = url;
                       sendToWatson(function (flag) {
                           console.log('herrlo tgeree');
+                          res.send('thanjs');
                       });
                   });
 
@@ -182,7 +183,7 @@ router.post('/postimage1',  function (req, res) {
           console.log('some');
 
       })*/
-    res.send('thanjs');
+
 
 
 });
