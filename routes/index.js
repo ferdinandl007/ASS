@@ -17,14 +17,15 @@ var http = require('http');
 
 
 var visual_recognition = watson.visual_recognition({
-    api_key: '577febf5f2455d14c15923bd5a7d0d3d5af3aa5b',
+    api_key: 'fd56ef7a9dbaa2c9bf99ab64e84c3fac2f4564e6',
     version: 'v3',
     version_date: '2016-05-20'
 });
 
 var params = {
     url : '',
-    classifier_ids: ['person3_1788983704']
+    classifier_ids: ['person7_1038173122'],
+    threshold: 0.1
 };
 
 
@@ -97,13 +98,25 @@ router.get('/watson',function (req, res, next) {
 
 })
 
-function sendToWatson(callback){
+function sendToWatson(url, callback){
+
+    params.url = url;
     console.log("send to watson ");
     visual_recognition.classify(params, function(err, res) {
         if (err)
             console.log(err);
         else{
            console.log(JSON.stringify(res, null, 2));
+           if(res.images[0].classifiers) {
+               if(res.images[0].classifiers[0]) {
+                   if(res.images[0].classifiers[0].classes) {
+                       callback(true);
+                   }
+               }
+           } else{
+               callback(false);
+           }
+
             //console.log(res.images[0].classifiers[0].classes[0].score);
             /*var score = res.images[0].classifiers[0].classes[0].score;
             if(score > 0.45){
@@ -150,13 +163,33 @@ function uploadFile(file, fileName, callback){
 
 }
 
+var counter = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14];
 router.post('/postimage1',  function (req, res) {
 
 
         console.log(req.headers);
         console.log(req.headers.lon);
         console.log(req.headers.lat);
+        var longitude = req.headers.lon;
+        var latitude = req.headers.lat;
+
+    var messsage = 'Please rescue at ' + 'logitiude: ' + longitude + ' \n' + 'latituide: ' + latitude + '\n' + 'Thanks';
+
+    counter.forEach(function (num) {
+            if(num%2 == 0 && num%5 == 0) {
+                recievers.forEach(function (pn) {
+                    console.log('pn is:', pn);
+                    twillio.sendSms(pn, messsage);
+
+
+                });
+            }
+
+        })
+
+
       //  console.log('POST request received for:', req.get('host')+req.url) ;
+/*
         req.pipe(req.busboy);
 
           req.busboy.on('field', function (fieldname, val) {
@@ -167,20 +200,43 @@ router.post('/postimage1',  function (req, res) {
 
           req.busboy.on('file', function (fieldname, file, filename) {
               console.log("Uploading: " + filename);
+              console.log(file);
               file.on('data', function(data){
-                  uploadFile(data, filename, function(url) {
+                  console.log(counter++);
+      /!*            uploadFile(data, filename, function(url) {
                       console.log("done" + url);
-                      //res.json({success:true, URL: url});
-                      params.images_file = null;
-                      params.url = url;
-                      sendToWatson(function (flag) {
-                          console.log('herrlo tgeree');
-                          res.send('thanjs');
-                      });
-                  });
+                      res.json({success:true, URL: url});
+
+                  /!*       sendToWatson(url, function (flag) {
+
+                             console.log('herrlo tgeree');
+
+                             if(flag) {
+                                 var messsage = 'Please rescue at ' + 'logitiude: ' + longitude + ' \n' + 'latituide: ' + latitude + '\n' + 'Thanks';
+
+                                 recievers.forEach(function (pn) {
+                                     console.log('pn is:', pn);
+                                     twillio.sendSms(pn, messsage);
+                                     res.send('thanjs');
+
+                                 })
+
+                             } else {
+
+                             }
+
+
+                         });*!/
+
+
+
+
+
+                  });*!/
 
               })
           });
+*/
 
     /*  sendToWatson(function (flag) {
           console.log('some');
