@@ -156,16 +156,12 @@ router.post('/postimage1',  function (req, res) {
       //  console.log('POST request received for:', req.get('host')+req.url) ;
         req.pipe(req.busboy);
 
-
-      setTimeout(function () {
           req.busboy.on('field', function (fieldname, val) {
               console.log('form field:', fieldname);
               console.log("value:", val);
 
           });
-      },1000);
 
-      setTimeout(function () {
           req.busboy.on('file', function (fieldname, file, filename) {
               console.log("Uploading: " + filename);
               file.on('data', function(data){
@@ -181,11 +177,6 @@ router.post('/postimage1',  function (req, res) {
 
               })
           });
-
-      },2000);
-
-
-
 
     /*  sendToWatson(function (flag) {
           console.log('some');
