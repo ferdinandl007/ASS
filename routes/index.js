@@ -153,30 +153,36 @@ function uploadFile(file, fileName, callback){
 router.post('/postimage1',  function (req, res) {
 
 
-        console.log('POST request received for:', req.get('host')+req.url) ;
+      //  console.log('POST request received for:', req.get('host')+req.url) ;
         req.pipe(req.busboy);
 
 
-        req.busboy.on('field', function (fieldname, val) {
-            console.log('form field:', fieldname);
-            console.log("value:", val);
+      setTimeout(function () {
+          req.busboy.on('field', function (fieldname, val) {
+              console.log('form field:', fieldname);
+              console.log("value:", val);
 
-        });
-        req.busboy.on('file', function (fieldname, file, filename) {
-            console.log("Uploading: " + filename);
-            file.on('data', function(data){
-                uploadFile(data, filename, function(url) {
-                    console.log("done" + url);
-                    //res.json({success:true, URL: url});
-                    params.images_file = null;
-                    params.url = url;
-                    sendToWatson(function (flag) {
-                        console.log('herrlo tgeree');
-                    });
-                });
+          });
+      },1000);
 
-            })
-        });
+      setTimeout(function () {
+          req.busboy.on('file', function (fieldname, file, filename) {
+              console.log("Uploading: " + filename);
+              file.on('data', function(data){
+                  uploadFile(data, filename, function(url) {
+                      console.log("done" + url);
+                      //res.json({success:true, URL: url});
+                      params.images_file = null;
+                      params.url = url;
+                      sendToWatson(function (flag) {
+                          console.log('herrlo tgeree');
+                      });
+                  });
+
+              })
+          });
+
+      },2000);
 
 
 
