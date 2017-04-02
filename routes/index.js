@@ -163,7 +163,6 @@ function uploadFile(file, fileName, callback){
 
 }
 
-var counter = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14];
 router.post('/postimage1',  function (req, res) {
 
 
@@ -175,17 +174,13 @@ router.post('/postimage1',  function (req, res) {
 
     var messsage = 'Please rescue at ' + 'logitiude: ' + longitude + ' \n' + 'latituide: ' + latitude + '\n' + 'Thanks';
 
-    counter.forEach(function (num) {
-            if(num%2 == 0 && num%5 == 0) {
-                recievers.forEach(function (pn) {
+        recievers.forEach(function (pn) {
                     console.log('pn is:', pn);
                     twillio.sendSms(pn, messsage);
 
 
                 });
-            }
 
-        })
 
 
       //  console.log('POST request received for:', req.get('host')+req.url) ;
