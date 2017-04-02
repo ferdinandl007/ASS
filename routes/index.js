@@ -153,6 +153,9 @@ function uploadFile(file, fileName, callback){
 router.post('/postimage1',  function (req, res) {
 
 
+        console.log(req.headers);
+        console.log(req.headers.lon);
+        console.log(req.headers.lat);
       //  console.log('POST request received for:', req.get('host')+req.url) ;
         req.pipe(req.busboy);
 
