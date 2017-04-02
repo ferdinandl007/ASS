@@ -9,6 +9,7 @@ var watson = require('watson-developer-cloud');
 var fs = require('fs');
 var multipart = require('connect-multiparty');
 var multipartMiddleware = multipart();
+var aws = require('aws-sdk');
 
 var multipartstream = require('multipart-read-stream');
 var pump = require('pump');
@@ -102,53 +103,80 @@ function sendToWatson(callback){
         if (err)
             console.log(err);
         else{
-           // console.log(JSON.stringify(res, null, 2));
-            console.log(res.images[0].classifiers[0].classes[0].score);
-            var score = res.images[0].classifiers[0].classes[0].score;
+           console.log(JSON.stringify(res, null, 2));
+            //console.log(res.images[0].classifiers[0].classes[0].score);
+            /*var score = res.images[0].classifiers[0].classes[0].score;
             if(score > 0.45){
                 callback(true)
-            }
+            }*/
 
         }
     });
 
 }
+const S3_BUCKET = 'imagesuploadjs' //= process.env.S3_BUCKET;
+
+// Create S3 service object
+//s3 = new AWS.S3({apiVersion: '2006-03-01'});
+
+var s3 = new aws.S3({
+    sslEnabled: true,
+    accessKeyId: "AKIAINT4DVSPUNN7MQOA",
+    secretAccessKey: "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"
+
+});
+
+function uploadFile(file, fileName, callback){
+
+    // call S3 to retrieve upload file to specified bucket
+    var uploadParams = {Bucket: S3_BUCKET, Key: '', Body: '',  ACL: 'public-read'};
+
+    // call S3 to retrieve upload file to specified bucket
+    uploadParams.Body = new Buffer(file);
+    //var u = id.get();
+
+    uploadParams.Key = fileName;
+
+    s3.upload (uploadParams, function (err, data) {
+        if (err) {
+            console.log("Error", err);
+        } if (data) {
+            console.log("Upload Success", data.Location);
+            callback(data.Location);
+            //return data;
+        }
+    });
 
 
+}
 
-router.post('/postimage1', function (req, res) {
+router.post('/postimage1',  function (req, res) {
 
 
-    console.log(req.files);
-        try {
-            if (req.busboy) {
-                req.pipe(req.busboy);
-                req.busboy.on('field', function (fieldname, val) {});
-                req.busboy.on('file', function (fieldname, file, filename) {
-                    file.on('data', function (data) {
-                        var uploadParams = {Bucket: S3_BUCKET, Key: '', Body: '', ACL: 'public-read'};
-                        uploadParams.Body = new Buffer(data);
-                        uploadParams.Key = new Date().toString();
-                        s3.upload(uploadParams, function (err, data) {
-                            if (err) {
-                                console.log('ERROR MSG: ', err);
-                                res.send(400);
-                            } else {
-                                console.log(data.Location);
-                                console.log('Successfully uploaded data');
-                                res.end(JSON.stringify({url: data.Location}));
-                            }
-                        });
+        console.log('POST request received for:', req.get('host')+req.url) ;
+        req.pipe(req.busboy);
+
+
+        req.busboy.on('field', function (fieldname, val) {
+            console.log('form field:', fieldname);
+            console.log("value:", val);
+
+        });
+        req.busboy.on('file', function (fieldname, file, filename) {
+            console.log("Uploading: " + filename);
+            file.on('data', function(data){
+                uploadFile(data, filename, function(url) {
+                    console.log("done" + url);
+                    //res.json({success:true, URL: url});
+                    params.images_file = null;
+                    params.url = url;
+                    sendToWatson(function (flag) {
+                        console.log('herrlo tgeree');
                     });
                 });
-            } else {
-                return res.status(400).send('Bad Request: Wrong Format');
-            }
-        } catch (err) {
-            return res.status(400).send();
-        }
 
-
+            })
+        });
 
 
 
@@ -160,5 +188,5 @@ router.post('/postimage1', function (req, res) {
     res.send('thanjs');
 
 
-})
+});
 module.exports = router;
