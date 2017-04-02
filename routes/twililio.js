@@ -31,7 +31,7 @@ module.exports.sendSms = function(to, message) {
 };
 
 
-var admins = require('../config/recievers.json');
+var admins = require('../Config/recievers.json');
 
 function formatMessage(errorToReport) {
     return '[This is a test] ALERT! It appears the server is' +
