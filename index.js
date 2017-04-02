@@ -53,8 +53,9 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-app.listen(3000, function (req, res) {
-  console.log('server started on port 3000');
+var port = process.env.PORT || 3000;
 
+app.listen(port, function () {
+  console.log('server started on port 3000');
 });
-//module.exports = app;
+module.exports = app;
