@@ -7,13 +7,28 @@ var Location = require('../Model/Location');
 
 var watson = require('watson-developer-cloud');
 var fs = require('fs');
-var multipart = require('connect-multiparty');
-var multipartMiddleware = multipart();
-var aws = require('aws-sdk');
+var multer = require('multer');
 
-var multipartstream = require('multipart-read-stream');
-var pump = require('pump');
-var http = require('http');
+var multipart = require('connect-multiparty');
+
+var middleware = multipart();
+
+
+const fileUpload = require('express-fileupload');
+
+
+var uploading = multer({
+    dest: __dirname + '/uploads/',
+    filename: 'im.jpeg'
+});
+
+
+var storage = multer.diskStorage({
+    dest: __dirname ,
+});
+var upload = multer({ storage: storage });
+
+
 
 
 var visual_recognition = watson.visual_recognition({
@@ -23,10 +38,43 @@ var visual_recognition = watson.visual_recognition({
 });
 
 var params = {
-    url : '',
     classifier_ids: ['person7_1038173122'],
     threshold: 0.1
 };
+
+
+
+router.post('/upload',  function(req, res) {
+
+
+        console.log(req.files);
+
+       // fs.writeFile(__dirname + '/uploads/' + req.files.file.name, req.files, 'binary', function (err) {
+
+        var sample = req.files.file;
+
+        sample.mv(__dirname + '/uploads/' + sample.name, function (err) {
+
+            if(err)
+                console.log(err);
+            else {
+                console.log("The file was saved!");
+
+                params.images_file =  fs.createReadStream(__dirname + '/uploads/' + sample.name );
+
+                // res.send(req.files);
+                sendToWatson(function (flag) {
+                    console.log("flag", flag);
+                    res.send(req.files.file);
+                });
+            }
+
+        })
+
+
+       // })
+
+});
 
 
 router.post('/postdata', function (req, res) {
@@ -98,9 +146,8 @@ router.get('/watson',function (req, res, next) {
 
 })
 
-function sendToWatson(url, callback){
+function sendToWatson(callback){
 
-    params.url = url;
     console.log("send to watson ");
     visual_recognition.classify(params, function(err, res) {
         if (err)
@@ -127,7 +174,7 @@ function sendToWatson(url, callback){
     });
 
 }
-const S3_BUCKET = 'imagesuploadjs' //= process.env.S3_BUCKET;
+/*const S3_BUCKET = 'imagesuploadjs' //= process.env.S3_BUCKET;
 
 // Create S3 service object
 //s3 = new AWS.S3({apiVersion: '2006-03-01'});
@@ -161,7 +208,7 @@ function uploadFile(file, fileName, callback){
     });
 
 
-}
+}*/
 
 router.post('/postimage1',  function (req, res) {
 
@@ -172,6 +219,12 @@ router.post('/postimage1',  function (req, res) {
         var longitude = req.headers.lon;
         var latitude = req.headers.lat;
 
+
+
+
+
+/*
+
     var messsage = 'Please rescue at ' + 'logitiude: ' + longitude + ' \n' + 'latituide: ' + latitude + '\n' + 'Thanks';
 
         recievers.forEach(function (pn) {
@@ -181,58 +234,12 @@ router.post('/postimage1',  function (req, res) {
 
 
                 });
+*/
 
 
 
       //  console.log('POST request received for:', req.get('host')+req.url) ;
-/*
-        req.pipe(req.busboy);
 
-          req.busboy.on('field', function (fieldname, val) {
-              console.log('form field:', fieldname);
-              console.log("value:", val);
-
-          });
-
-          req.busboy.on('file', function (fieldname, file, filename) {
-              console.log("Uploading: " + filename);
-              console.log(file);
-              file.on('data', function(data){
-                  console.log(counter++);
-      /!*            uploadFile(data, filename, function(url) {
-                      console.log("done" + url);
-                      res.json({success:true, URL: url});
-
-                  /!*       sendToWatson(url, function (flag) {
-
-                             console.log('herrlo tgeree');
-
-                             if(flag) {
-                                 var messsage = 'Please rescue at ' + 'logitiude: ' + longitude + ' \n' + 'latituide: ' + latitude + '\n' + 'Thanks';
-
-                                 recievers.forEach(function (pn) {
-                                     console.log('pn is:', pn);
-                                     twillio.sendSms(pn, messsage);
-                                     res.send('thanjs');
-
-                                 })
-
-                             } else {
-
-                             }
-
-
-                         });*!/
-
-
-
-
-
-                  });*!/
-
-              })
-          });
-*/
 
     /*  sendToWatson(function (flag) {
           console.log('some');
