@@ -253,19 +253,18 @@ router.post('/postimage1',  function (req, res) {
 
                 if(flag) {
 
-                    // var messsage = 'Please rescue at ' + 'logitiude: ' + longitude + ' \n' + 'latituide: ' + latitude + '\n' + 'Thanks';
+                     var messsage = 'Please rescue at ' + 'logitiude: ' + longitude + ' \n' + 'latituide: ' + latitude + '\n' + 'Thanks';
 
                     recievers.forEach(function (pn) {
                         console.log('pn is:', pn);
-                        //twillio.sendSms(pn, messsage);
-                    })
+                        twillio.sendSms(pn, messsage);
+                    });
                     res.send('All Done');
 
                 } else {
                     res.send('Nothing to be done');
 
                 }
-
 
 
             });
