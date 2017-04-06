@@ -49,7 +49,6 @@ router.post('/upload',  function(req, res) {
 
         console.log(req.files);
 
-       // fs.writeFile(__dirname + '/uploads/' + req.files.file.name, req.files, 'binary', function (err) {
 
         var sample = req.files.file;
 
@@ -62,17 +61,33 @@ router.post('/upload',  function(req, res) {
 
                 params.images_file =  fs.createReadStream(__dirname + '/uploads/' + sample.name );
 
-                // res.send(req.files);
                 sendToWatson(function (flag) {
                     console.log("flag", flag);
-                    res.send(req.files.file);
+
+                    if(flag) {
+
+                       // var messsage = 'Please rescue at ' + 'logitiude: ' + longitude + ' \n' + 'latituide: ' + latitude + '\n' + 'Thanks';
+
+                        recievers.forEach(function (pn) {
+                            console.log('pn is:', pn);
+                            //twillio.sendSms(pn, messsage);
+                        })
+                        res.send('All Done');
+
+                    } else {
+                        res.send('Nothing to be done');
+
+                    }
+
+
+
                 });
             }
 
         })
 
 
-       // })
+
 
 });
 
@@ -92,7 +107,7 @@ router.post('/postdata', function (req, res) {
 
         if(flag) {
 
-            var messsage = 'Please rescue at ' + 'logitiude: ' + longitude + ' \n' + 'latituide: ' + latitude + '\n' + 'Thanks';
+          //  var messsage = 'Please rescue at ' + 'logitiude: ' + longitude + ' \n' + 'latituide: ' + latitude + '\n' + 'Thanks';
 
             recievers.forEach(function (pn) {
                 console.log('pn is:', pn);
@@ -125,16 +140,13 @@ router.get('/watson',function (req, res, next) {
     sendToWatson(function (flag) {
 
         if(flag) {
-            var loc = new Location({
-                longitude: 101.22,
-                latitude : 211.2112
-            });
 
-            var messsage = 'Please rescue at ' + 'logitiude: ' + loc.longitude + ' \n' + 'latituide: ' + loc.latitude + '\n' + 'Thanks';
+
+          //  var messsage = 'Please rescue at ' + 'logitiude: ' + loc.longitude + ' \n' + 'latituide: ' + loc.latitude + '\n' + 'Thanks';
 
             recievers.forEach(function (pn) {
                 console.log('pn is:', pn);
-                twillio.sendSms(pn, messsage);
+               // twillio.sendSms(pn, messsage);
 
             })
 
@@ -157,7 +169,9 @@ function sendToWatson(callback){
            if(res.images[0].classifiers) {
                if(res.images[0].classifiers[0]) {
                    if(res.images[0].classifiers[0].classes) {
-                       callback(true);
+                       if(res.images[0].classifiers[0].classes[0].score) {
+                           callback(true);
+                       }
                    }
                }
            } else{
@@ -220,31 +234,44 @@ router.post('/postimage1',  function (req, res) {
         var latitude = req.headers.lat;
 
 
+    console.log(req.files);
+
+
+    var sample = req.files.file;
+
+    sample.mv(__dirname + '/uploads/' + sample.name, function (err) {
+
+        if(err)
+            console.log(err);
+        else {
+            console.log("The file was saved!");
+
+            params.images_file =  fs.createReadStream(__dirname + '/uploads/' + sample.name );
+
+            sendToWatson(function (flag) {
+                console.log("flag", flag);
+
+                if(flag) {
+
+                    // var messsage = 'Please rescue at ' + 'logitiude: ' + longitude + ' \n' + 'latituide: ' + latitude + '\n' + 'Thanks';
+
+                    recievers.forEach(function (pn) {
+                        console.log('pn is:', pn);
+                        //twillio.sendSms(pn, messsage);
+                    })
+                    res.send('All Done');
+
+                } else {
+                    res.send('Nothing to be done');
+
+                }
 
 
 
-/*
+            });
+        }
 
-    var messsage = 'Please rescue at ' + 'logitiude: ' + longitude + ' \n' + 'latituide: ' + latitude + '\n' + 'Thanks';
-
-        recievers.forEach(function (pn) {
-                    console.log('pn is:', pn);
-
-                    twillio.sendSms(pn, messsage);
-
-
-                });
-*/
-
-
-
-      //  console.log('POST request received for:', req.get('host')+req.url) ;
-
-
-    /*  sendToWatson(function (flag) {
-          console.log('some');
-
-      })*/
+    })
 
 
 
